@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="groupByFlow" doc:id="01a44b92-6b5d-4415-9a64-04e6c0f0661d" >
+		<http:listener doc:name="Listener" doc:id="46446dd8-840b-4fa8-a558-f5ecd2054fa7" config-ref="HTTP_Listener_config" path="/groupBy"/>
+		<ee:transform doc:name="Transform Message" doc:id="08a07230-3227-4908-aa5b-074827a41fd3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "employees": {
+    "employee": {
+      "First_name": "yathendra",
+      "last_Name": "Alluru",
+      "domain": "Mulesoft"
+    },
+    "employee": {
+      "First_name": "ranjith",
+      "last_Name": "Akula",
+      "domain": "powerBI"
+    },
+    "employee": {
+      "First_name": "hari",
+      "last_Name": "pakanati",
+      "domain": "java"
+    },
+    "employee": {
+      "First_name": "naresh",
+      "last_Name": "salapakshi",
+      "domain": "powerBI"
+    },
+    "employee": {
+      "First_name": "Harish",
+      "last_Name": "salpakshi",
+      "domain": "SAP"
+    },
+    "employee": {
+      "First_name": "pravana",
+      "last_Name": "Aluru",
+      "domain": "Mulesoft"
+    },
+    "__text": "\nv\n",
+    "employee": {
+      "First_name": "Vinodh",
+      "last_Name": "gova",
+      "domain": "java"
+    },
+    "employee": {
+      "First_name": "Raghava",
+      "last_Name": "Alluru",
+      "domain": "Mulesoft"
+    }
+  }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="7f55edcd-e13b-4393-b16b-e8c67e8838f5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+((payload.employees.*employee groupBy $.domain pluck $ map(item,index)->{
+    "Working_ON":item.domain[0],
+    "count":sizeOf(item),
+    "WHO_IS_WORKING":item map ((item, index) -> item.First_name ++ " " ++ item.last_Name)
+}) orderBy $.count)[-1 to 0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="groupByFlow1" doc:id="cf2e1285-d0e5-4938-acaf-aa6699c27710" >
+		<http:listener doc:name="Listener" doc:id="11579ae8-5419-46cb-9089-a416bdc87b93" config-ref="HTTP_Listener_config" path="/pluck"/>
+		<ee:transform doc:name="Transform Message" doc:id="5fd1bd92-050d-4163-bb5a-5eb7ab8d6967" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "employee": {
+      "First_name": "yathendra",
+      "last_Name": "Alluru",
+      "domain": "Mulesoft",
+      "address":{
+        "city":"vgr",
+        "state":"Ap"
+      },
+      "ph":{
+        "mobile":"911111",
+        "land":"222222"
+      }
+    
+  },
+    "employee": {
+      "First_name": "ranjith",
+      "last_Name": "akula",
+      "domain": "Mulesoft",
+      "address":{
+        "city":"vgr",
+        "state":"Ap"
+      },
+      "ph":{
+        "land":"333333",
+        "mobile":"4444444"
+        
+      }
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="cb6f4f6b-8964-4f78-926e-10f2b41a5303" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.*employee map(item,index)->{
+    "Name":item.First_name ++ " " ++ item.last_Name,
+    "addressFields":item.address pluck $$,
+    "addressValues":item.address pluck $,
+    "phFields":item.ph pluck $$,
+    "phValues":item.ph pluck $,
+    "mobilePosition": indexOf(item.ph pluck $$ as String, "mobile")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

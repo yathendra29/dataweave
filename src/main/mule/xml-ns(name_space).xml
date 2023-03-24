@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration2" doc:name="HTTP Request configuration" doc:id="1e34af04-001d-425b-85da-569690892ede" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="xml-ns(name_space)Flow" doc:id="3a41fc39-7b88-4809-b507-540877305682" >
+		<http:listener doc:name="Listener" doc:id="b4db7b2e-c7e5-4533-bfd3-b0a3daee127c" config-ref="HTTP_Listener_config" path="/ns"/>
+		<ee:transform doc:name="json-xml" doc:id="bc5db3e2-a784-4828-abf1-915ad9632ada" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	employees:{
+		employee:{
+			name:"yathendra",
+			"email":"yathi@gmail.com",
+			"ph":"9876543210"
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="xml-to-xml-ns" doc:id="9c431a19-9803-4d67-8770-e4fe474a8d8d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 www.yathi.com
+---
+{
+	ns0#employess:{
+		ns0#employee:{
+			ns0#name:payload.employees.employee.name,
+			ns0#email:payload.employees.employee.email,
+			ns0#ph:payload.employees.employee.ph
+			
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="xml-ns-to-xml" doc:id="b256d2b6-fe8d-4430-b5fa-ab343d044a9d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0ns ns0 www.yathi.com
+
+output application/xml
+---
+{
+	"employees":{
+		"employee":{
+			"name":payload.ns0#employess.ns0#employee.ns0#name,			"email":payload.ns0#employess.ns0#employee.ns0#email,			"ph":payload.ns0#employess.ns0#employee.ns0#ph
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="xml-json" doc:id="4ee88a3c-abb7-4195-9392-045e015ddf05" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"employees":{
+		"employee":
+		{
+			"name":payload.employees.employee.name,
+			"email":payload.employees.employee.email,
+			"ph":payload.employees.employee.ph
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="JSON_to_XML-NS" doc:id="0f2f70e8-42e4-4b0b-9680-8c192b1bd894" >
+		<http:listener doc:name="Listener" doc:id="4f3353e0-c4d5-4002-90bd-3b2d7d8b2c69" config-ref="HTTP_Listener_config" path="/ns1"/>
+		<ee:transform doc:name="json input payload" doc:id="1319bd96-2e6d-4198-949d-f534b271185e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "employees": {
+        "employee": {
+            "name": "yathendra",
+            "email": "yathi@gmail.com",
+            "ph": "9876543210"
+        }
+    }
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="json-to-xml-ns" doc:id="b9f72f06-fbd4-497e-acc3-5851db4e9ba9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns cont www.yathendra.com
+---
+{
+	cont#employees:{
+		cont#employee:{
+			cont#name:payload.employees.employee.name,
+			cont#"email":payload.employees.employee.email,
+			cont#"ph":payload.employees.employee.ph
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="xml-ns(name_space)Flow1" doc:id="2ca63bb3-6da4-4a92-bed6-fa3fd8b44916" >
+		<http:listener doc:name="Listener" doc:id="9254e3f8-cfac-46a1-8bcf-03d6b844afa1" config-ref="HTTP_Listener_config" path="/ns2"/>
+		<http:request method="GET" doc:name="getting response as xml-ns" doc:id="8a4a62d4-c38a-4edf-bce9-673a8e89c7b2" path="/ns1" config-ref="HTTP_Request_configuration2"/>
+		<logger level="INFO" doc:name="xml-ns_TO_json_method_1" doc:id="e9b07949-b474-4b19-9d26-eed36987e9cf" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"employees":{&#10;		"employee":{&#10;			"name":payload.employees.employee.name&#10;		}&#10;	}&#10;}]' />
+		<ee:transform doc:name="xml-ns_TO_json_method_2" doc:id="7f9ecc3e-7b88-4440-8e7f-d221b4d45799" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns cont www.yathendra.com
+---
+{
+	"employees":{
+		"employee":{
+			"name":payload.cont#employees.cont#employee.cont#name
+		}
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

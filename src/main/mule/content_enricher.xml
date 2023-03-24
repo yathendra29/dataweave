@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="90fd5ba7-a372-4d84-a4b1-bcc963832db5" >
+		<http:request-connection port="80" host="api.zippopotam.us"/>
+	</http:request-config>
+	<flow name="content_enricherFlow" doc:id="6106562b-d0e8-432f-8972-f5f574cb246e" >
+		<http:listener doc:name="Listener" doc:id="8dd08021-ef19-44c2-b655-000ad184a517" config-ref="HTTP_Listener_config" path="/enrich"/>
+		<ee:transform doc:name="input payload" doc:id="0dd6c2e0-5996-4edb-8e38-574ebf5dd6c7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"id":1,
+	"first_name":"ganguly",
+	"last_name":"sourav",
+	"zip":"110001"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.zip]" doc:name="Set Variable" doc:id="063b1980-11b3-47aa-b05d-9660f0fa670d" variableName="zip"/>
+		<ee:transform doc:name="Transform Message" doc:id="fb82acf2-bac3-4790-a554-19956a061f0e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload ++ {"game":"cricket"}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="92dee634-18ef-46d1-a1c8-d1f5384b5b50" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import java!java::lang::Math
+import * from dw::core::Strings
+output application/json
+---
+payload ++{
+	"randomNumber": Math::random(),
+	"fullName": capitalize(payload.last_name ++ " " ++ payload.first_name),
+	"date":now() as String{format:"yyyy-MM-dd"}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="GET" doc:name="Request" doc:id="e83cc06c-0eda-4d03-b4a5-7cb9988dfe1e" target="country" targetValue="#[payload.country]" config-ref="HTTP_Request_configuration" path='#["IN/" as String  ++ vars.zip]'/>
+		<ee:transform doc:name="Transform Message" doc:id="be21da65-1cec-4e1a-8ce7-b2d5d45467c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"status":"success",
+"result":payload ++ {"country":vars.country}
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

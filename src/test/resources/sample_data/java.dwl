@@ -1,0 +1,5 @@
+
+%dw 2.0
+output application/java 
+---
+"ewogIG5hbWU6ICJ5YXRoZW5kcmEiLAogIHN0cmVldDogIkFQIiwKICBjaXR5OiAidmtpIiwKICBwaW5jb2RlOiAxMjMKfSBhcyBPYmplY3Qge2VuY29kaW5nOiAiVVRGLTgiLCBtZWRpYVR5cGU6ICJhcHBsaWNhdGlvbi9qc29uIn0="

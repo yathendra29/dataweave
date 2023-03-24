@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:request-config name="HTTP_Request_configuration3" doc:name="HTTP Request configuration" doc:id="c1c22877-7b7e-4e6e-bf08-55c505094033" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="selectorsFlow" doc:id="19add468-8760-4ccf-a3dd-d96c6a375c78" >
+		<http:listener doc:name="Listener" doc:id="a51438d7-5646-4130-9ee9-3353326b9a60" config-ref="HTTP_Listener_config" path="/selectors"/>
+		<ee:transform doc:name="input_payload" doc:id="a2c66f75-768a-48bf-aba5-e7e842bb0d81" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "root": {
+    "table": {
+      "tr": {
+        "td": "Apples",
+        "td": "Bananas"
+      }
+    },
+    "table": {
+      "name": "African Coffee Table",
+      "width": "80",
+      "length": "120"
+    }
+  }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="single_value_selector(.)" doc:id="5e071a84-d216-46b7-9960-e8ae12a4bc92" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload.root.table.tr.td]"/>
+		<logger level="INFO" doc:name="multi_value_selector(.*)--ARRAY" doc:id="f6eb3e03-ea16-4dd6-b5e1-65332aa7c48c" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload.root.table.tr.*td]"/>
+		<logger level="INFO" doc:name="Descendants(..)-- ARRAY" doc:id="ba1d29db-d6fd-41a7-ad2a-776633c1ba71" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload..table]"/>
+		<logger level="INFO" doc:name="Descendants(..*)-- ARRAY" doc:id="75995121-d4e0-4ed8-bf7f-5ddd650a7e13" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload..*table]"/>
+	</flow>
+	<flow name="selectorsFlow2" doc:id="b7b43d03-0e75-4e2a-9420-655c59e66725" >
+		<http:listener doc:name="Listener" doc:id="2c2776a3-c5cd-4896-a955-b401c756e9e1" config-ref="HTTP_Listener_config" path="/selectors2"/>
+		<ee:transform doc:name="input_payload" doc:id="57527557-90d9-4d76-ba29-8fcab898b3c4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[1,2,3,4,5,6,7,8]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="index" doc:id="85e53794-8215-4e66-862a-1bff44a46730" message="#[payload[2]]"/>
+		<logger level="INFO" doc:name="range" doc:id="dcf64c31-c367-4d68-9e2a-4e6698c575dc" message="#[payload[4 to 7]]"/>
+		<logger level="INFO" doc:name="Reverse_Order" doc:id="0a57a721-bd6a-4b87-9468-2009ee30f06e" message="#[payload[-1 to 0]]"/>
+	</flow>
+	<flow name="selectorsFlow1" doc:id="485ac288-8e41-4ac5-9a78-3f420e834e03" >
+		<http:listener doc:name="Listener" doc:id="65126936-8547-4104-9019-8a1894dabfab" config-ref="HTTP_Listener_config" path="/selectors1"/>
+		<http:request method="GET" doc:name="Request" doc:id="995aedbe-9b40-43f8-8c43-60874ce7cb67" config-ref="HTTP_Request_configuration3" path="/selectors"/>
+		<logger level="INFO" doc:name="prints the VALUES of tr" doc:id="0aa71c0c-226c-4de7-9118-4391b342322a" message="#[payload.root.table.tr]"/>
+		<logger level="INFO" doc:name='prints the VALUES of tr as well as KEY "tr" by using (&amp;)' doc:id="70d0c272-1009-4d39-88fe-2cdbe08cb182" message="#[payload.root.table.&amp;tr]"/>
+	</flow>
+	<flow name="selectorsFlow3" doc:id="a7c46476-8c1a-479c-9f76-a46158e246a3" >
+		<http:listener doc:name="Listener" doc:id="81e35a7c-3dca-44cf-a808-92716f7bfe56" config-ref="HTTP_Listener_config" path="/selectors3"/>
+		<file:read doc:name="Read" doc:id="473d240c-957a-4911-8653-61e635df27eb" config-ref="File_Config" path="C:\Users\Admin\Documents\sample.xml"/>
+		<logger level="INFO" doc:name="payload" doc:id="78effab1-e5c3-40a3-8d7c-a1df0aee5425" message="#[payload]"/>
+		<logger level="INFO" doc:name="to fetch attributes in xml (.@)::: ALL" doc:id="1b4b75c2-3dad-4933-8cac-595f2235b6df" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload.messages.note.@]"/>
+		<logger level="INFO" doc:name="to fetch attributes in xml (.@)::: PARTICULAR" doc:id="92792bd3-4506-4b91-b516-8bc6b179d2d2" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload.messages.note.@status]"/>
+		<logger level="INFO" doc:name="to fetch namesapce (#)" doc:id="5e45dd1f-c891-49be-bb15-79ba55bb57f4" message="#[payload.messages.note.#]"/>
+		<logger level="INFO" doc:name="To Check whether the key is present or not" doc:id="42fbf5c8-dfc3-48ec-ae77-e6b80170dded" message="#[payload.messages.note.to?]"/>
+		<logger level="INFO" doc:name="assert that(!) give value if present else error-- (?) will give true if present else false" doc:id="39ed8425-420a-4a1a-b8b1-c8f025860a91" message="#[payload.messages.note.to!]"/>
+		<logger level="INFO" doc:name="metadata(.^)" doc:id="8740b106-d273-4b01-817d-2ba93156a333" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"content_length":payload.^contentLength,&#10;	"Encoding":payload.^encoding,&#10;	"MIME-TYpE":payload.^mimetype&#10;}]'/>
+	</flow>
+</mule>

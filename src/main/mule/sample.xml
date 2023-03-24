@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="sampleFlow" doc:id="4a401226-b152-4b91-b062-cc7805da5c62" >
+		<http:listener doc:name="Listener" doc:id="c4bc9574-a456-4293-8bca-7231ebf99d81" config-ref="HTTP_Listener_config" path="dw_sample"/>
+		<ee:transform doc:name="Transform Message" doc:id="1eb7b2ab-e1f9-4cfc-ac58-f7861b53910f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+ payload.message endsWith("na") 
+//payload.message startsWith ("bal")
+// payload.message contains "kri"
+// payload.message countMatches("a") //required to import String Modul
+// payload.message contains (/[6-9]/)
+// payload.message[-2] contains (/[a-c]/)
+// payload.message [sizeOf(payload.message)-2] contains (/[a-c]/)
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

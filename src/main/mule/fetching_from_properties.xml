@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="e539267e-e205-48d4-a98d-2c59ca231c5e" file="application.properties" />
+	<flow name="fetching_from_propertiesFlow" doc:id="07756f68-c02f-41c2-99e4-b943263b1d5f" >
+		<http:listener doc:name="Listener" doc:id="88d4a0d1-e3b9-4e45-a7a7-c6b138dbe37e" config-ref="HTTP_Listener_config" path="/fp"/>
+		<set-variable value="${city.countries.map}" doc:name="country and city from properties" doc:id="af7ddf4d-da9e-4e93-b8fe-fb0b38742516" variableName="cityCountryMapEntries"/>
+		<set-variable value="#[attributes.queryParams.city]" doc:name="queryParams from request" doc:id="470d4964-2a80-4c92-b3a4-f90be8c8cc5d" variableName="queryParamsCity"/>
+		<set-variable value="${city.list}" doc:name="cityList from properties" doc:id="9b37dafe-f5a0-475b-9be0-64cee3452c3b" variableName="cityList"/>
+		<ee:transform doc:name="splitBy" doc:id="3c7b3cb8-5492-4b49-a59f-8ca05cddfece" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="city_List" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.cityList splitBy(",")
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="In value, we didnt add [0] so the value gives array, if we mention [0] it gives string" doc:id="4b418f45-6f7d-4492-ba33-30189c2a2082" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"CityList":vars.city_List map{&#10;		"position":$$,&#10;		"key":$,&#10;		"value":vars.cityCountryMapEntries[$ as String]&#10;	},&#10;	"inputCity":vars.queryParamsCity,&#10;	"exists": if (vars.city_List contains vars.queryParamsCity) "YES" else "NO"&#10;}]'/>
+		<ee:transform doc:name="mapping on values not on key_value_pair" doc:id="37f94acf-7f8d-467c-a0f6-4f31db2b9f4a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"CityList":vars.city_List map{    // here mapping is on only on values not on key_value pair
+		"position":$$,
+		"item":$,
+		"value":vars.cityCountryMapEntries[$ as String][0]  // here $ gives the value of item and [0] gives the result to be in string
+	},
+	"inputCity":vars.queryParamsCity,
+	"exists": if (vars.city_List contains vars.queryParamsCity) "YES" else "NO"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

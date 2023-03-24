@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration4" doc:name="HTTP Request configuration" doc:id="cb1a0157-1e50-475b-91ad-9c47c5a3f201" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="encode_decode_form(64)Flow" doc:id="e972f994-8aa1-4f51-b9f1-c580d7fba38f" >
+		<http:listener doc:name="Listener" doc:id="4e4bdae2-7b15-49b7-9532-9f28df7b5c2b" config-ref="HTTP_Listener_config" path="/encode"/>
+		<ee:transform doc:name="Transform Message" doc:id="97e0d6af-6419-4667-8309-53d9f241d620" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Name":"yathendra",
+	"surName":"Alluru",
+	"FullName":"Alluru Yathendra Pravana Raghava"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="cf3d067e-1e06-45fb-a066-c89cd0ae694c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+	"Name":payload.surName ++ " " ++ payload.Name,
+	"FULLNAME":toBase64(payload.FullName as Binary)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="encode_decode_form(64)Flow1" doc:id="342ce48a-ab51-48ee-99db-2bbbaf28d2a2" >
+		<http:listener doc:name="Listener" doc:id="8fb3d2c1-1591-4aed-af5b-0807d608ce9d" config-ref="HTTP_Listener_config" path="/decode"/>
+		<http:request method="GET" doc:name="Request" doc:id="da8e511f-de1e-462a-be61-743cb67bd0bb" config-ref="HTTP_Request_configuration4" path="/encode"/>
+		<ee:transform doc:name="Transform Message" doc:id="3b194508-d4ba-477e-a263-fbcdb2db28d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+	"FullName":fromBase64(payload.FULLNAME)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="keep_binary_attachPDF_in_POSTMAN" doc:id="4db1ac20-7f8b-4bc0-963e-e259ab6d90f9" >
+		<http:listener doc:name="Listener" doc:id="0f73b81e-c15f-4f19-844c-2a6076db5c7a" config-ref="HTTP_Listener_config" path="/encodePDF"/>
+		<ee:transform doc:name="Transform Message" doc:id="6c869821-1f87-4a9e-8cf5-c433e9869d14" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+	"FileName":"sample.pdf",
+	"content":toBase64(payload)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="encode_decode_form(64)Flow2" doc:id="6ee10d28-07c6-41a9-8645-80bbf8a3eead" >
+		<http:listener doc:name="Listener" doc:id="ba77f577-1e90-47b1-92b6-9bdd48eb8edd" config-ref="HTTP_Listener_config" path="/decodePDF"/>
+		<http:request method="GET" doc:name="Request" doc:id="5d189765-eef1-4c51-9edb-fa39c6803f40" config-ref="HTTP_Request_configuration4" path="/encodePDF"/>
+		<ee:transform doc:name="Transform Message" doc:id="7b4b1143-0e8e-4508-9699-52d8f57d9c46" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/PDF with binary
+---
+fromBase64(payload.content)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="736a1c3b-aeda-40b6-b2a5-5550dd484d69" message='#["got PDF file"]'/>
+	</flow>
+	<flow name="encode_decode_form(64)Flow3" doc:id="6b3fdc6d-090e-4324-9644-44f0ae3f47c7" >
+		<http:listener doc:name="" doc:id="fc894691-4666-454c-823e-b362147d4be9" config-ref="HTTP_Listener_config" path="/ec"/>
+		<ee:transform doc:name="Transform Message" doc:id="511bdb25-26ae-4827-8d43-b36d0186ce69" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"ewogIG5hbWU6ICJ5YXRoZW5kcmEiLAogIHN0cmVldDogIkFQIiwKICBjaXR5OiAidmtpIiwKICBwaW5jb2RlOiAxMjMKfSBhcyBPYmplY3Qge2VuY29kaW5nOiAiVVRGLTgiLCBtZWRpYVR5cGU6ICJhcHBsaWNhdGlvbi9qc29uIn0="]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="437d5cdc-b3b7-46c8-b9ab-d01ac62ac4d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+read(fromBase64(payload))]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

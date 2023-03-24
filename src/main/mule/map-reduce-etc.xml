@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="aac7329a-7adf-4975-8bb5-11e57abc5c8c" />
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="649f2f10-bccc-4628-bcc5-08d16acb4f8d" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="Calling_below_flow" doc:id="79a15596-3b03-4778-8f5f-299805a0e76e" >
+		<http:listener doc:name="Listener" doc:id="a6713500-a01c-46c2-b9dd-95fe20185b6e" config-ref="HTTP_Listener_config" path="/dw1"/>
+		<http:request method="GET" doc:name="Request" doc:id="deeeea5d-6480-4863-8df8-eb93191358f7" config-ref="HTTP_Request_configuration1" path="/dw"/>
+		<ee:transform doc:name="filter" doc:id="78e3c496-8916-448f-a3aa-26a57f84ba83" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter($.ID < 407)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="adding fee field with random values" doc:id="fbd6a9ae-6141-472d-b1ba-d572d687971d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(data,index)->{
+	"ID":data.ID,
+	"Name": data.Name,
+	"City": data.city,
+	"fee": randomInt(10000)
+	}
+	]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="reduce for aggregating fee values(total)" doc:id="e8440e66-ceb5-401e-aa92-838077ac74c7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload reduce((data,sum=0)->
+sum+data.fee)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="map-reduce-etcFlow" doc:id="3b095822-27ff-42ad-86ec-e77a939ec64f" >
+		<http:listener doc:name="Listener" doc:id="324c2651-c34b-4c9e-a8c8-85bffa86831a" config-ref="HTTP_Listener_config" path="/dw"/>
+		<file:read doc:id="f30f28c2-e8fe-4774-a3b9-7e38ec933593" config-ref="File_Config" path="C:\Users\Admin\Documents\std1.csv"/>
+		<ee:transform doc:name="converting csv-xml" doc:id="074e7106-a6a5-4542-ab80-7baec85a9354" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	"students":
+	{
+	"student_details":payload
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="converting xml-json" doc:id="8cd77185-3218-4254-9070-c3e63b9b0c90" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.students.*student_details]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Map" doc:id="2ee0bc61-f443-4df5-a47f-004d4ce543d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(data,index) -> {
+	"ID": data.id ,
+	"Name": data.Name ++ "-" ++ data.Age as String ,
+	"city": data.City
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="orderBy for Descending Order" doc:id="185f6d17-b71d-44ce-ac4a-9c444fe818d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+(payload orderBy ($.Name))[-1 to 0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="distinctBY" doc:id="1fa81e3c-e3e8-4b42-8c8e-eab59f6f58cb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload distinctBy $.ID  // gives unique values]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Reduce" doc:id="8bf2565b-fa58-4b23-88f3-b4f50e489e92" >
+		<http:listener doc:name="Listener" doc:id="e16e095c-b87b-4371-a6d0-0b2027627eaa" config-ref="HTTP_Listener_config" path="/reduce"/>
+		<ee:transform doc:name="Transform Message" doc:id="70f94e33-2710-4b20-ac34-0aa6dd806ef7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"sameForAllReduceOperations":[9] reduce($),  //for first element in an array whatever reduce operation we perform the o/p is that element only(9)
+"EmptyArray":[] reduce(item,accumulator=4)->(item),// result of reduce is accumulator
+"EmptyArray":[] reduce(item,accumulator=4)->(accumulator),// result of reduce is accumulator
+"addition":[1,2,3] reduce($+$$), // item=accumulator=1 , 1+2=3, 3+3=6(accumulator)
+"addition1":[1,2,3] reduce($$+$), // item=accumulator=1 , 1+2=3, 3+3=6(accumulator)
+"addition2":[1,2,3] reduce(item,accumulator=10)->(item+accumulator), // accumulator=10 and item=1 , 1+10=11, 2+11=13 , 3+13=16(accumulator)
+"addition3":[3,3,5] reduce($+$), // item=5 ,5+5=10
+"substractionn":[1,2,3] reduce($-$$), // item=accumulator=1 , 2-1=1 ,3-1=2(accumulator)
+"substraction1":[1,2,3] reduce($$-$),  //item=accumulator=1, 1-2=-1, -1-3=-4(accumulator)
+"substraction2":[1,2,3] reduce(item,accumulator=10)->(item-accumulator),  //item=1 and accumulator=10, 1-10=-9, 2-(-9)=11, 3-11=-8,
+"concatenation":["a","b","c"] reduce($++$$) ,// item=accumulator=a, b++a=ba , c++ba=cba(accumulator)
+"concatenation1":["a","b","c"] reduce($$++$) ,// item=accumulator=a, a++b=ab , ab++c=abc (accumulator)
+"concatenation2":["a","b","c"] reduce($++$) ,// item=c , c++c="cc"
+"logic":[true,false,true] reduce($ and $$) ,// item=accumulator=true, true and false=false, false and true=false
+"logic":[true,false,true] reduce($ or $$ ) ,// item=accumulator=true,  false or true=true, true or true=true
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="map-filter" doc:id="7184b1de-26cc-428e-990f-50e4d648e1e6" >
+		<http:listener doc:name="Listener" doc:id="d06b7719-047a-49a5-9c09-cc4a346ca7b0" config-ref="HTTP_Listener_config" path="/map_filter"/>
+		<ee:transform doc:name="input payload" doc:id="b4444aa7-08b4-45c5-bfdd-2cca036cb84b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[{
+    "name": "yathendra",
+    "id":123,
+    "address":{
+        "h.no":123,
+        "street":"ap",
+        "city":"vgr"
+    }
+},
+{
+"name":"pravana",
+"id":123,
+"address":{
+    "h.no":123,
+    "street":"ap",
+    "city":"vki"
+}
+},
+{
+"name":"raghava",
+"id":123,
+"address":{
+    "h.no":123,
+    "street":"ap",
+    "city":"vgr"
+}
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="map" doc:id="16a79dc8-4cdd-4e68-a25f-0f02b2454bcf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index)->{
+    "name_with_ID":item.name ++ "-"++ item.id,
+    index:item.address,   // index is treating as a string here
+    (index):item.address   // when you enclose with () it treated as index
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="filter" doc:id="e4e6850b-3638-4535-a4b4-d3f0271354e3" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload filter(item,index)-&gt;(item.index.city == 'vki')]"/>
+	</flow>
+	<flow name="pluck_mapObject-filterObject" doc:id="fd4034b7-d63b-4c35-8037-2fdfa1099dac" >
+		<http:listener doc:name="Listener" doc:id="ad0fda58-1170-471b-843b-a492ce0604df" config-ref="HTTP_Listener_config" path="/map_object"/>
+		<ee:transform doc:name="input payload" doc:id="f37b83ba-4e84-40ba-8dcc-53672e065f9e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "emp1":{
+    "name": "yathendra",
+    "address": {
+      "h.no": 123,
+      "street": "ap",
+      "city": "vgr"
+    }
+  },
+"emp2":{
+    "name": "pravana",
+    "address": {
+      "h.no": 124,
+      "street": "kspt",
+      "city": "vki"
+    }
+  },
+  "emp3":{
+    "name": "raghava",
+    "address": {
+      "h.no": 125,
+      "street": "pc",
+      "city": "vgr"
+    }
+  }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="pluck" doc:id="eee8ff9a-31a9-4738-bdb2-a2ec91b74c7c" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload pluck(value,key,index)-&gt; {(index):(value)}]"/>
+		<ee:transform doc:name="map_Object" doc:id="c488d359-01ac-4815-a416-6847cdf03a59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload mapObject ((value, key, index) -> {
+(index):value.name ,
+"presentAddress": value.address."h.no" ++ " , " ++ value.address.street ++ " , " ++ value.address.city
+}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="filter_Object" doc:id="a391075b-b100-4a38-aaa3-2118e60f300d" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload filterObject((value,key,index) -&gt; (value=='yathendra')&#10;)]"/>
+	</flow>
+	<flow name="flatten-etc" doc:id="698a7797-31b2-4af2-981f-3035d8088544" >
+		<http:listener doc:name="Listener" doc:id="3a53346b-5aab-402d-bab2-580595a25463" config-ref="HTTP_Listener_config" path="/flatten"/>
+		<ee:transform doc:name="input payload" doc:id="36ffed5b-4edf-46ef-a1ba-a43f1c73d6f1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[1,2,3,[4,5],[6,7]]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="flatten" doc:id="74b40e01-7656-4bf5-9ca1-2dec97442af9" message="#[flatten(payload)]"/>
+		<logger level="INFO" doc:name="Reverse" doc:id="26e47cde-c87c-4f42-9a49-f9338be91837" message="#[payload[-1 to 0]]"/>
+		<logger level="INFO" doc:name="sum" doc:id="efe270ae-3742-491a-958d-b5de961820f2" message="#[sum(payload)]"/>
+		<ee:transform doc:name="uuid()_total" doc:id="ad28124d-2f34-4aae-8466-3a6c8696160d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	total: sum(flatten(payload)),
+	"uniqueID":uuid()
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="map-reduce-etcFlow1" doc:id="27eedfb8-06b6-4c44-b3ee-c0f308931c82" >
+		<http:listener doc:name="Listener" doc:id="fc047804-e9c8-41de-b222-6d09830e77fb" config-ref="HTTP_Listener_config" path="/rd"/>
+		<ee:transform doc:name="Transform Message" doc:id="78d15b43-15b9-41a0-9ece-77c034037182" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{"orders":[
+  {
+    "id":"1000",
+    "customers":{
+      "name":"alluru yathendra",
+      "ph":"9999999",
+      "city":"venkatagiri"
+    },
+    "orders":{
+      "purchaseOrders":[
+        {
+          "item":"chinthol_soaps",
+          "qty":3,
+          "rate":50
+        },
+        {
+          "item":"sensodyne_paste",
+          "qty":2,
+          "rate":150
+        }
+      ]
+    }
+  },
+  {
+    "id":"1001",
+    "customers":{
+      "name":"alluru raghava",
+      "ph":"6666666",
+      "city":"vki"
+    },
+    "orders":{
+      "purchaseOrders":[
+        {
+          "item":"pantene_shampoo",
+          "qty":3,
+          "rate":100
+        },
+        {
+          "item":"ponds_powder",
+          "qty":4,
+          "rate":50
+        },
+        {
+          "item":"axe_spray",
+          "qty":2,
+          "rate":200
+        }
+      ]
+    }
+  }
+]}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="8f9588d2-c7ce-42d9-a9b7-5ee7e2abdf4f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.orders map{
+    "CustomerId":$.id,
+    "name":$.customers.name,
+    "totalItems":$.orders.purchaseOrders.qty reduce($+$$),
+    "OrderAmount":$.orders.purchaseOrders reduce(item,sum=0)->(sum + item.qty*item.rate),
+    "orderedItems":$.orders.purchaseOrders.item reduce($++","++$$)
+    }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

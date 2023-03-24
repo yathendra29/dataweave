@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="csv" format="csv">
+      <types:shape format="weave" example="examples/std1.csv"><![CDATA[%dw 2.0
+
+type csv = Array<{|  id: String,   Name: String,   Age: String,   Gender: String,   DOJ: String,   City: String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#1a8c292d-8914-426d-80c8-a8b4cbe2665a"/>
+  <types:enrichment select="#05373e30-40ac-4c3f-a1f5-b428f8b52ab7"/>
+  <types:enrichment select="#ec2555ac-7d0d-4e7a-b448-2720ef0932a9"/>
+  <types:enrichment select="#c480b32a-cbae-45c1-b288-54ed47d5945a"/>
+  <types:enrichment select="#3d683681-8e61-4b82-a5ee-a6a408436500"/>
+  <types:enrichment select="#3c7b3cb8-5492-4b49-a59f-8ca05cddfece"/>
+</types:mule>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="396f012c-d7eb-47fe-a7da-b94b9c14c660" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="sorting" doc:id="56499922-ceb9-480c-be01-66b62756991a" >
+		<http:listener doc:name="Listener" doc:id="81d020d1-0b3c-4c11-ae60-e7135420e936" config-ref="HTTP_Listener_config" path="/sort"/>
+		<ee:transform doc:name="input payload" doc:id="4a5f32cb-60c0-4c94-b77b-f0bc79225524" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	team:[
+		{
+			"name":"sachin",
+			"matches":705,
+			"score":33333
+		},
+		{
+			"name":"sehwag",
+			"matches":405,
+			"score":22333
+		},
+		{
+			"name":"virat",
+			"matches":505,
+			"score":33333
+		},
+		{
+			"name":"ganguly",
+			"matches":555,
+			"score":29333
+		},{
+			"name":"yuvraj",
+			"matches":505,
+			"score":23333
+		}
+	]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="ddad242f-55a3-4287-85ce-b6e0a8a57b24" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"indianTeam": payload.team map((priority,index) ->{
+		"Name":priority.name,
+		"Score":priority.score,
+		"Matches":priority.matches
+	}) orderBy $.Score
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="sorting_By_2" doc:id="b27f7ec8-dc0a-4585-9740-fe262333e9bd" >
+		<http:listener doc:name="Listener" doc:id="eb217ffa-68bd-42cc-964f-176c8ce3929b" config-ref="HTTP_Listener_config" path="/sort1"/>
+		<ee:transform doc:name="Transform Message" doc:id="09676da7-4e17-4188-a1a9-a063c6c9f460" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	team:[
+		{
+			"name":"sachin",
+			"matches":705,
+			"score":33333
+		},
+		{
+			"name":"sehwag",
+			"matches":405,
+			"score":22333
+		},
+		{
+			"name":"virat",
+			"matches":505,
+			"score":33333
+		},
+		{
+			"name":"ganguly",
+			"matches":555,
+			"score":29333
+		},{
+			"name":"yuvraj",
+			"matches":505,
+			"score":23333
+		}
+	]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="13e28c09-7d0d-4333-b006-12cbb8faf3a2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"indianTeam": payload.team map((priority,index) ->{
+		"Name":priority.name,
+		"Score":priority.score,
+		"Matches":priority.matches
+	}) orderBy ($.Score ++ $.Matches)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

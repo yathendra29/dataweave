@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="Crypto_module_HMACBinary" doc:id="0b36bbd4-be57-4511-85b0-c7008c1caabd" >
+		<http:listener doc:name="Listener" doc:id="1f887499-f22d-419c-b95d-2f3cf5b1c3ea" config-ref="HTTP_Listener_config" path="/crypto"/>
+		<ee:transform doc:name="Transform Message" doc:id="caf43111-3280-426f-93b0-680840345a08" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Hi,This is yathendra"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="cbb8baf3-4520-418b-a641-4723c44710f4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+ Crypto::HMACBinary("msg" as Binary, payload as Binary)  //key,content
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Crypto_module_HMACWith" doc:id="ec0b1cb9-9c87-456f-8bb0-1de8e14bad44" >
+		<http:listener doc:name="Listener" doc:id="bdb74622-a920-44d1-8a95-a57c7430f6e0" config-ref="HTTP_Listener_config" path="/crypto1"/>
+		<ee:transform doc:name="Transform Message" doc:id="c25d9018-78dd-4b7e-967e-7aab7425d529" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Hi,This is yathendra"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="7c282261-7956-4019-b3ff-5724bd4794dc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+{
+ "HmacSHA256":Crypto::HMACWith("msg" as Binary, payload as Binary,"HmacSHA256"),
+  "HmacSHA512":Crypto::HMACWith("msg" as Binary, payload as Binary,"HmacSHA512")
+}
+
+// "HmacSHA256" smalllength 
+// "HmacSHA512" big length]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Crypto_module_MD5" doc:id="3e3e0607-61de-487c-81ac-12f176022d29" >
+		<http:listener doc:name="Listener" doc:id="259376a3-4260-4d32-9dbe-6bd9452f81bb" config-ref="HTTP_Listener_config" path="/crypto2"/>
+		<ee:transform doc:name="Transform Message" doc:id="148f3dab-55ec-43f2-97df-d314fb5f71cd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Hi,This is yathendra"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="048ddcaa-858d-4c1b-a889-a6d8b573c2f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+ Crypto::MD5(payload as Binary)   // no need of key
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Crypto_module_SHA1" doc:id="ca7d7f06-e516-4ed2-af02-10ac7cbe2a3d" >
+		<http:listener doc:name="Listener" doc:id="67447d17-57ed-41e7-a53f-c742c8a1362e" config-ref="HTTP_Listener_config" path="/crypto3"/>
+		<ee:transform doc:name="Transform Message" doc:id="af69dce1-81b0-40d5-80b6-854f0dd848a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Hi,This is yathendra"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="af8b644e-0173-4b82-87f5-ab07ce42e034" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+
+ Crypto::SHA1(payload as Binary)
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Crypto_module_hashWith" doc:id="32d3e007-4d5a-4986-a6c5-dc6a6edd4063" >
+		<http:listener doc:name="Listener" doc:id="3af99cc7-a310-41ea-80a0-3973da2813bd" config-ref="HTTP_Listener_config" path="/crypto4"/>
+		<ee:transform doc:name="Transform Message" doc:id="85b8edc2-3966-48d5-a3d0-eea6d21c5980" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Hi,This is yathendra"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="a5d5a771-984d-4d19-ab7f-7d7af5ecd72b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+---
+{
+ "MD2":Crypto::hashWith(payload as Binary,"MD2"),
+ "MD5":Crypto::hashWith(payload as Binary,"MD5"),
+ "SHA-1":Crypto::hashWith(payload as Binary,"SHA-1"),
+ "SHA-1":Crypto::hashWith(payload as Binary,"SHA-256"),
+ "SHA-1":Crypto::hashWith(payload as Binary,"SHA-384"),
+ "SHA-1":Crypto::hashWith(payload as Binary,"SHA-512")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

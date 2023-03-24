@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="throws_ERROR_without_payload.^raw" doc:id="5dea9733-f7ad-4cb0-ab92-59de7f49ddf8" >
+		<http:listener doc:name="Listener" doc:id="531a9994-fb03-476b-b9ee-2d7cd717ef54" config-ref="HTTP_Listener_config" path="/raw"/>
+		<ee:transform doc:name="Transform Message" doc:id="9697372b-32b0-4d81-8e92-060991f22c0f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"msg":"welcome to mulesoft"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="0a01516b-03d5-4393-ab30-b9d3646cd30e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"hello yathendra " ++ payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="payload.^raw_SUCCESS" doc:id="8c5ba88e-1279-4602-b479-e16d946af7a4" >
+		<http:listener doc:name="Listener" doc:id="15fbd6d3-55b8-470b-b2e4-b787db1507fb" config-ref="HTTP_Listener_config" path="/raw1"/>
+		<ee:transform doc:name="Transform Message" doc:id="a4f702c6-9d2b-469c-b65c-4bfd6c2711ff" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"msg":"welcome to mulesoft"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="4f0dccd2-08cd-4a9a-a45f-0814710a2d4d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"hello yathendra " ++ payload.^raw]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

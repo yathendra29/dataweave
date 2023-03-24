@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="json-jsonFlow" doc:id="b41fa297-c95c-44d3-a583-c74a427ae561" >
+		<http:listener doc:name="Listener" doc:id="504fd662-6242-4e4a-8d4f-b4a70b18649b" config-ref="HTTP_Listener_config" path="/json"/>
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"team":[&#10;		{&#10;			"id":1,&#10;			"firstName":"yathendra",&#10;			"lastName":"alluru"&#10;		},&#10;		{&#10;			"id":1,&#10;			"firstName":"ganguly",&#10;			"lastName":"sourav"&#10;		},{&#10;			"id":1,&#10;			"firstName":"yuvraj",&#10;			"lastName":"singh"&#10;		}&#10;	]&#10;}]' doc:name="Input_payload" doc:id="d5084965-50f7-419a-a8eb-d3ee78a3bba2" variableName="input_payload"/>
+		<logger level="INFO" doc:name="Logger" doc:id="adbb555c-5e93-4652-8c3e-7f3758ddf6e5" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="e5ae0f59-1985-40da-9a48-d0fe787c9c2d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+{
+	"Team": payload.team map(data,index) -> {
+		"ID": data.id,
+		"FullName": reverse(data.lastName as String ++ " " ++ data.firstName)
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="json-xml" doc:id="9e28c7eb-6f8d-4893-bdba-62c73ccfe013" >
+		<http:listener doc:name="Listener" doc:id="bd88e1e8-f1df-4ed2-bcfe-43d45ca749f4" config-ref="HTTP_Listener_config" path="/xml"/>
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"team":[&#10;		{&#10;			"id":1,&#10;			"firstName":"yathendra",&#10;			"lastName":"alluru"&#10;		},&#10;		{&#10;			"id":1,&#10;			"firstName":"ganguly",&#10;			"lastName":"sourav"&#10;		},{&#10;			"id":1,&#10;			"firstName":"yuvraj",&#10;			"lastName":"singh"&#10;		}&#10;	]&#10;}]' doc:name="Input_payload" doc:id="27ba1f21-9966-4a18-a5dd-2a8dd918d20e" variableName="input_payload" />
+		<logger level="INFO" doc:name="Logger" doc:id="c0dbecf0-5bd4-4cff-b7ad-6ad6fc01ca25" message="payload"/>
+		<ee:transform doc:name="Transform Message" doc:id="ff512e89-56a4-439d-8bf7-77307299b024" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/xml
+---
+Teams:
+{
+	"Team": payload.team map(data,index) -> {
+		"ID": data.id,
+		"FullName": reverse(data.lastName as String ++ " " ++ data.firstName)
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

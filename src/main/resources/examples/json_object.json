@@ -1,0 +1,18 @@
+{
+	"team":[
+		{
+			"id":1,
+			"firstName":"yathendra",
+			"lastName":"alluru"
+		},
+		{
+			"id":1,
+			"firstName":"ganguly",
+			"lastName":"sourav"
+		},{
+			"id":1,
+			"firstName":"yuvraj",
+			"lastName":"singh"
+		}
+	]
+}

@@ -1,0 +1,32 @@
+{
+  "sampleData": {
+    "8cd77185-3218-4254-9070-c3e63b9b0c90": {
+      "payload": "sample_data/students.xml"
+    },
+    "86a6e051-0848-4461-9725-d0cb534b5cd5": {
+      "payload": "sample_data/list_defaultbinarytype.json"
+    },
+    "074e7106-a6a5-4542-ab80-7baec85a9354": {
+      "payload": "sample_data/list_csv.csv"
+    },
+    "3f3b57a3-c141-4c6e-9bac-54a83fd89633": {
+      "payload": "sample_data/json.json"
+    },
+    "16a79dc8-4cdd-4e68-a25f-0f02b2454bcf": {
+      "payload": "sample_data/list_json.json"
+    },
+    "e4e6850b-3638-4535-a4b4-d3f0271354e3": {
+      "payload": "sample_data/list_json_1.json"
+    },
+    "1fa81e3c-e3e8-4b42-8c8e-eab59f6f58cb": {
+      "payload": "sample_data/json_1.json"
+    },
+    "3c7b3cb8-5492-4b49-a59f-8ca05cddfece": {
+      "vars-cityList": "sample_data/defaultstringtype.dwl"
+    },
+    "437d5cdc-b3b7-46c8-b9ab-d01ac62ac4d3": {
+      "vars-atr": "sample_data/java.dwl",
+      "payload": "sample_data/json_2.json"
+    }
+  }
+}

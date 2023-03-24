@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Allegra",
+    "id": 80,
+    "address": {
+      "h.no": 25,
+      "street": "Golden Gate Ave 37",
+      "city": "San Diego"
+    }
+  },
+  {
+    "name": "Claud",
+    "id": 32,
+    "address": {
+      "h.no": 7,
+      "street": "Castro St 73",
+      "city": "Houston"
+    }
+  }
+]

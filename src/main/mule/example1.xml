@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="example1Flow" doc:id="e7ce90c6-7f97-40c1-a187-209327c3f391" >
+		<http:listener doc:name="Listener" doc:id="3b4e239b-ff9b-45bc-a406-2d6014e0deb4" config-ref="HTTP_Listener_config" path="/ex"/>
+		<ee:transform doc:name="without modules/utilities" doc:id="1a8c292d-8914-426d-80c8-a8b4cbe2665a" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="without_Modules_or_Utilities" ><![CDATA[%dw 2.0
+output application/json
+var place = "Chennai"
+var greeting = "WELCOME"
+var noValue= null
+var pin = 600001
+var cityOfCalifornia = "San Francisco"
+var blank = ""
+var keepers = ["Dhoni", "Dravid", "Karim"]
+var batsmen = ["Sachin", "Dhoni"]
+var bowler=["harbajan","srinath"]
+var currency = { "India" : "Rupee"}
+var currency2 = { "USA" : "Dollar", "UK" : "Pound" }
+var cities = ["Bangalore", "Mangalore", "Delhi"]
+var numbers = [{ donation: 1, rank: 10 }, { donation : 3, rank : 15 }, { donation : 2, rank : 11 }]
+---
+{
+	"Isblank":isBlank(""),
+	"IsEmpty":isEmpty(blank),  // [],{} also same
+	"isEmpty":isEmpty(noValue),
+    "blank":isBlank(blank),
+    "IsChennaiBlank":isBlank(place),
+    "usingIFElse":if(isBlank(blank)) "blank" else "valid",
+    "usingUpper":upper(place),
+    "usingContains":if(place contains "hen") "YES" else "NO",
+    "usingStartsWith":cityOfCalifornia startsWith "San",
+    "arrayDifference":keepers -- batsmen , // removes the element that is common in keeper and batsmen
+    "arrayDifference1":keepers -- [batsmen],   // removes batsmen complete elements
+    "arrayDifference2":keepers -- [batsmen,bowler] ,
+    "arrayAddition":keepers ++ batsmen,
+    "arrayAddition1":keepers ++ ["pant"],
+    "currency":currency['India'],  // here we are fetching India(key) which is in object not ARRAY
+    "findType":typeOf(numbers),
+    "size":sizeOf(cities),
+    "orderBy":numbers orderBy($.donation),
+    "filter": cities filter ($ contains "lore"),
+    "filter2": cities filter(not ($ contains "lore")),
+    "RandomNumber":(random() * 1000),
+    "RandomNumber":floor(random() * 1000)
+    
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="array modules" doc:id="05373e30-40ac-4c3f-a1f5-b428f8b52ab7" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="Array_Modules_or_Utilities" ><![CDATA[%dw 2.0
+import * from dw::core::Arrays
+output application/json
+var place = "Chennai"
+var greeting = "WELCOME"
+var pin = 600001
+var cityOfCalifornia = "San Francisco"
+var blank = ""
+var keepers = ["Dhoni", "Dravid", "Karim"]
+var batsmen = ["Sachin", "Dhoni"]
+var currency = { "India" : "Rupee"}
+var currency2 = { "USA" : "Dollar", "UK" : "Pound" }
+var cities = ["Bangalore", "Mangalore", "Delhi"]
+var numbers = [{ donation: 1, rank: 10 }, { donation : 3, rank : 15 }, { donation : 2, rank : 11 }]
+---
+{
+	"usingCountBy": cities countBy($ contains "lore"),
+	"DivideArrayByGroups": (keepers divideBy 2),
+	"sumBy": numbers sumBy($.donation)
+	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="string modules" doc:id="ec2555ac-7d0d-4e7a-b448-2720ef0932a9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="string_Modules_or_utilities" ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+var place = "Chennai"
+var greeting = "WELCOME"
+var pin = 600001
+var cityOfCalifornia = "San Francisco"
+var blank = ""
+var keepers = ["Dhoni", "Dravid", "Karim"]
+var batsmen = ["Sachin", "Dhoni"]
+var currency = { "India" : "Rupee"}
+var currency2 = { "USA" : "Dollar", "UK" : "Pound" }
+var cities = ["Bangalore", "Mangalore", "Delhi"]
+var numbers = [{ donation: 1, rank: 10 }, { donation : 3, rank : 15 }, { donation : 2, rank : 11 }]
+---
+{
+	"camelise":camelize(greeting),
+	"capitalize":capitalize(greeting),
+	"dasherize":dasherize(cityOfCalifornia),
+	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="object modules" doc:id="c480b32a-cbae-45c1-b288-54ed47d5945a" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="object_Modules_or_Utilities" ><![CDATA[%dw 2.0
+import * from dw::core::Objects
+output application/java
+var place = "Chennai"
+var greeting = "WELCOME"
+var pin = 600001
+var cityOfCalifornia = "San Francisco"
+var blank = ""
+var keepers = ["Dhoni", "Dravid", "Karim"]
+var batsmen = ["Sachin", "Dhoni"]
+var currency = { "India" : "Rupee"}
+var currency2 = { "USA" : "Dollar", "UK" : "Pound" }
+var cities = ["Bangalore", "Mangalore", "Delhi"]
+var numbers = [{ donation: 1, rank: 10 }, { donation : 3, rank : 15 }, { donation : 2, rank : 11 }]
+---
+{
+	"mergewith":currency mergeWith currency2, // to combine two objects
+	"KeySet":keySet(currency mergeWith currency2) // to get the keys in an object
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="math/date modules" doc:id="3d683681-8e61-4b82-a5ee-a6a408436500" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="Math_&amp;_Date_Modules" ><![CDATA[%dw 2.0
+import java!java::lang::Math
+import java!java::util::Date
+output application/json
+var place = "Chennai"
+var greeting = "WELCOME"
+var pin = 600001
+var cityOfCalifornia = "San Francisco"
+var blank = ""
+var keepers = ["Dhoni", "Dravid", "Karim"]
+var batsmen = ["Sachin", "Dhoni"]
+var currency = { "India" : "Rupee"}
+var currency2 = { "USA" : "Dollar", "UK" : "Pound" }
+var cities = ["Bangalore", "Mangalore", "Delhi"]
+var numbers = [{ donation: 1, rank: 10 }, { donation : 3, rank : 15 }, { donation : 2, rank : 11 }]
+---
+// check without_utilities same can be done without Math
+{
+	"randomNumber_UsingMath": Math::random(),
+	"randomNumber_UsingMath1": Math::random() * 100 ,
+	"randomNumber_UsingMath2": Math::floor(Math::random() * 1000),
+	"UTC":Date::UTC(2019, 12, 3, 3, 30, 20 )
+	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="select one by one and execute" doc:id="755de630-7bae-494a-bf28-2761a3ce351f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.object_Modules_or_Utilities]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="example1Flow1" doc:id="27aa55e1-63d5-4869-82ac-6fc039efe960" >
+		<http:listener doc:name="Listener" doc:id="690fe02d-7ce9-4f49-a527-fabd2d4b845d" config-ref="HTTP_Listener_config" path="/dataWeave"/>
+		<ee:transform doc:name="Input_payload" doc:id="faeb0575-f53e-408b-8ba4-7f5f24e532b5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"name":"yathendra alluru",
+	"id":12,
+	"ph":"  99999  ",
+	"address":{
+		"d.no":123,
+		"street":"AP",
+		"city":"vgr"
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="3f3b57a3-c141-4c6e-9bac-54a83fd89633" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	keys:keysOf(payload),  // valuesOf()
+	values:valuesOf(payload),  // keyOf()
+	"checkingMapObject":payload.address mapObject(value,key,index)->(
+		'$(key)':value      //'$(key)'
+	),
+	"checkingMapObject1":payload mapObject(value,key,index)->(
+		'$(key)':value),
+	"UPPER":upper(payload.name),
+	"LOWER":lower(payload.address.street),
+	"DATE-TIME":now(),
+	"REPLACE":payload.id replace 12 with 402 ,
+	"exREPLACE":"my123" replace /(\d+)/ with "ID",   // \d+ (0-9)
+	"exREPLACE":"0my123" replace /(\d+)/ with "ID", 
+	"Full_Name": payload.name replace " " with "-" ,  // replace with
+	"splitBy":payload.name splitBy(" "),
+	"trim": trim(payload.ph)  // removes first and last spaces in string
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="example1Flow2" doc:id="0abfc3d3-48a5-44bb-9e1c-584847553c79" >
+		<http:listener doc:name="Listener" doc:id="10991306-f8f6-4c2e-80a7-98e4464091dd" config-ref="HTTP_Listener_config" path="/dataweave1"/>
+		<ee:transform doc:name="Transform Message" doc:id="3619e348-55c1-4c83-bf24-b9940232672d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"avg":avg([1,2,3,4]),
+"ABS":abs(-1.6),
+"CEIL":ceil(1.1),
+"CEIL1":ceil(1.8),
+"FLOOR":floor(1.2),
+"FLOOR1":floor(1.8),
+"ROUND":round(1.4),
+"ROUND1":round(1.5),
+"ROUND2":round(1.7),
+"ISINTEGER":isInteger(2),
+"ISINTEGER1":isInteger(2.1),
+"ISEVEN1":isEven(4),
+"ISEVEN":isEven(1),
+"ISODD":isOdd(1),
+"ISODD":isOdd(4),
+"ISDECIMAL":isDecimal(1),
+"ISDECIMAL":isDecimal(1.2),
+"ISLEAPYEAY":isLeapYear(now())
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="removing_escaping_Characters" doc:id="d12fedfd-007a-4c25-bab2-3d1c15c18aa1" >
+		<http:listener doc:name="Listener" doc:id="2aa0fdd4-28c2-404b-b209-51375400df1c" config-ref="HTTP_Listener_config" path="/escape"/>
+		<ee:transform doc:name="Transform Message" doc:id="224c197e-1885-4aa9-8e1e-bbc47ac60279" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json 
+---
+{
+	
+	"name":"yathendra alluru",
+	"id":12,
+	"ph":"  99999  ",
+	"address":{
+		"d.no":123,
+		"street":"AP",
+		"city":"vgr"
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value='#[write(payload,"application/json") as String]' doc:name="Set Variable" doc:id="a32426fb-855f-4677-8643-5caddc479c24" variableName="storing"/>
+		<ee:transform doc:name="Transform Message" doc:id="fb501e80-8146-49b8-9e68-acdd791291ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.storing]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="430a56a9-88fc-4308-934a-11b950f184f8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"MethodOne":read(payload,"application/json"),
+	"MethodTwo":read(payload replace /"\$# 34;/ with '"')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="input_available_in_notepad++(first)" doc:id="56b195e2-add2-46e0-acca-0c51866ab08b" >
+		<http:listener doc:name="Listener" doc:id="6f7c4c5c-1a73-4a54-82ca-faeac917ec5b" config-ref="HTTP_Listener_config" path="/exm"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d82f2c16-f183-44a6-8377-1717bf52ea9c" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="38d79944-291e-48aa-892a-9596c862c4f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json skipNullOn = "everywhere" // removes the field if it has null value
+---
+
+payload.*emp map{
+    "Name_ID":$.name ++ "-" ++ $.id ,
+    "Phone":$.ph,
+    "Salary":(($.salary replace "\$" with "") * 75) as String{format:"#.###"},
+    "Salary1":(($.salary replace "\$" with "") * 75) as String{format:"#.##"},
+    "Salary2":(($.salary replace "\$" with "") * 75) as String{format:"#.00"},
+    "Salary3":(($.salary replace "\$" with "") * 75) as String{format:"000000000.00"}
+    
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
